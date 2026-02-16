@@ -1,0 +1,32 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.gitignore
+.mypy_cache
+.pytest_cache
+.idea/
+.vscode/
+
+# Ignore local media files to keep image small
+uploads/*
+outputs/*
+music/*
+# Keep empty directories if they exist in source by not ignoring the folder itself, 
+# but we handle creation in Dockerfile anyway.
+# We ignore the *contents* of these folders locally.

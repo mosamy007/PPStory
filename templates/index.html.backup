@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Reel Creator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            background: #f0f4ff;
+            border-color: #5568d3;
+        }
+
+        .upload-area.drag-over {
+            background: #e6edff;
+            border-color: #5568d3;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .selected-files {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .selected-files h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .file-list {
+            list-style: none;
+        }
+
+        .file-item {
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .file-size {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .settings {
+            margin: 30px 0;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+        }
+
+        .setting-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .setting-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .setting-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+        }
+
+        .setting-group input[type="color"] {
+            padding: 4px;
+            height: 45px;
+            cursor: pointer;
+        }
+
+        .setting-group input[type="range"] {
+            padding: 8px 0;
+        }
+
+        .setting-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .setting-group.half {
+            flex: 1;
+        }
+
+        .music-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .radio-label:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .radio-label input[type="radio"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .radio-label span {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .file-hint {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .music-search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .music-search input {
+            flex: 1;
+        }
+
+        .btn-search {
+            padding: 12px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-search:hover {
+            background: #5568d3;
+        }
+
+        .music-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .music-placeholder {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+        }
+
+        .music-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .music-item:hover {
+            background: #f5f5f5;
+        }
+
+        .music-item.selected {
+            background: #e6edff;
+            border-left: 4px solid #667eea;
+        }
+
+        .music-item input[type="radio"] {
+            width: auto;
+            margin-right: 12px;
+        }
+
+        .music-info {
+            flex: 1;
+        }
+
+        .music-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .music-duration {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .selected-music {
+            margin-top: 15px;
+            padding: 12px;
+            background: #d4edda;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-clear {
+            padding: 6px 12px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .btn-clear:hover {
+            background: #c82333;
+        }
+
+        .music-upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .music-upload-area:hover {
+            border-color: #667eea;
+            background: #e6edff;
+        }
+
+        .music-upload-area .upload-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .music-upload-area.drag-over {
+            border-color: #51cf66;
+            background: #e8f5e9;
+        }
+
+        .music-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: #e6edff;
+            border-color: #667eea;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .btn-play {
+            padding: 8px 12px;
+            background: #51cf66;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-right: 10px;
+            min-width: 40px;
+        }
+
+        .btn-play:hover {
+            background: #40c057;
+        }
+
+        .btn-play.playing {
+            background: #ff6b6b;
+        }
+
+        .btn-play.error {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .setting-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            background: #51cf66;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.3em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #40c057;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .progress-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 10px;
+        }
+
+        .progress-bar {
+            height: 40px;
+            background: #e0e0e0;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #51cf66 100%);
+            transition: width 0.3s;
+            width: 0%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .download-section {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            background: #d4edda;
+            border: 2px solid #51cf66;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .download-section h3 {
+            color: #155724;
+            margin-bottom: 20px;
+        }
+
+        .btn-download {
+            padding: 15px 40px;
+            background: #51cf66;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-download:hover {
+            background: #40c057;
+        }
+
+        .error-message {
+            display: none;
+            padding: 20px;
+            background: #f8d7da;
+            border: 2px solid #ff6b6b;
+            border-radius: 10px;
+            color: #721c24;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🐱 Pet Reel Creator</h1>
+            <p>Create amazing pet reels automatically</p>
+        </header>
+
+        <div class="content">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📹</div>
+                <div class="upload-text">Drop video files here or click to browse</div>
+                <div class="upload-hint">Supports MP4, MOV, AVI files</div>
+            </div>
+
+            <input type="file" id="fileInput" multiple accept="video/*">
+
+            <div class="selected-files" id="selectedFiles">
+                <h3>Selected Videos (<span id="fileCount">0</span>)</h3>
+                <ul class="file-list" id="fileList"></ul>
+            </div>
+
+            <div class="settings">
+                <div class="setting-group">
+                    <label>Text Overlay (optional)</label>
+                    <input type="text" id="textOverlay" placeholder="e.g., My Cats 🐱">
+                </div>
+
+                <div class="setting-group">
+                    <label>Text Position</label>
+                    <select id="textPosition">
+                        <option value="top">Top Center</option>
+                        <option value="center">Center</option>
+                        <option value="bottom">Bottom Center</option>
+                        <option value="top-left">Top Left</option>
+                        <option value="top-right">Top Right</option>
+                        <option value="bottom-left">Bottom Left</option>
+                        <option value="bottom-right">Bottom Right</option>
+                    </select>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-group half">
+                        <label>Text Color</label>
+                        <input type="color" id="textColor" value="#ffffff">
+                    </div>
+                    <div class="setting-group half">
+                        <label>Stroke Color</label>
+                        <input type="color" id="strokeColor" value="#000000">
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>Font Size: <span id="fontSizeValue">70</span>px</label>
+                    <input type="range" id="fontSize" min="20" max="150" value="70">
+                </div>
+
+                <div class="setting-group">
+                    <label>Background Music</label>
+                    <div class="music-options">
+                        <label class="radio-label">
+                            <input type="radio" name="musicSource" value="none" checked>
+                            <span>No Music</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="musicSource" value="local">
+                            <span>Upload My Own Music 🎶</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-group" id="musicUploadGroup" style="display: none;">
+                    <label>Upload Music File</label>
+                    <div class="music-upload-area" id="musicUploadArea">
+                        <div class="upload-icon">🎵</div>
+                        <p>Drop your music file here or click to browse</p>
+                        <div class="file-hint">MP3, WAV, AAC, M4A, OGG, FLAC (max 50MB)</div>
+                        <input type="file" id="musicFile" accept="audio/*" style="display: none;">
+                    </div>
+                    <div id="selectedMusicFile" style="display: none; margin-top: 10px; padding: 10px; background: #e8f5e9; border-radius: 6px; color: #2e7d32;">
+                        ✓ <span id="musicFileName"></span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="createBtn" disabled>
+                CREATE REEL
+            </button>
+
+            <div class="progress-section" id="progressSection">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill">0%</div>
+                </div>
+                <div class="progress-text" id="progressText">Processing...</div>
+            </div>
+
+            <div class="download-section" id="downloadSection">
+                <h3>🎉 Your reel is ready!</h3>
+                <a href="#" class="btn-download" id="downloadBtn">Download Reel</a>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+        let sessionId = null;
+
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const selectedFilesDiv = document.getElementById('selectedFiles');
+        const fileList = document.getElementById('fileList');
+        const fileCount = document.getElementById('fileCount');
+        const createBtn = document.getElementById('createBtn');
+        const progressSection = document.getElementById('progressSection');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const downloadSection = document.getElementById('downloadSection');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const fontSizeSlider = document.getElementById('fontSize');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        const musicRadios = document.querySelectorAll('input[name="musicSource"]');
+        const musicUploadGroup = document.getElementById('musicUploadGroup');
+        const musicFileInput = document.getElementById('musicFile');
+        const musicBrowserGroup = document.getElementById('musicBrowserGroup');
+        const selectedMusic = document.getElementById('selectedMusic');
+        const selectedMusicTitle = document.getElementById('selectedMusicTitle');
+        const clearMusicBtn = document.getElementById('clearMusicBtn');
+
+        const musicFileName = document.getElementById('musicFileName');
+
+        // Font size slider update
+        fontSizeSlider.addEventListener('input', () => {
+            fontSizeValue.textContent = fontSizeSlider.value;
+        });
+
+        // Music source radio button handler
+        musicRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                musicUploadGroup.style.display = radio.value === 'local' ? 'block' : 'none';
+            });
+        });
+
+        // Music upload area click handler
+        const musicUploadArea = document.getElementById('musicUploadArea');
+        const selectedMusicFile = document.getElementById('selectedMusicFile');
+
+        musicUploadArea.addEventListener('click', () => musicFileInput.click());
+
+        musicUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            musicUploadArea.classList.add('drag-over');
+        });
+
+        musicUploadArea.addEventListener('dragleave', () => {
+            musicUploadArea.classList.remove('drag-over');
+        });
+
+        musicUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            musicUploadArea.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('audio/')) {
+                musicFileInput.files = files;
+                showSelectedMusic(files[0]);
+            }
+        });
+
+        musicFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                showSelectedMusic(e.target.files[0]);
+            }
+        });
+
+        function showSelectedMusic(file) {
+            musicFileName.textContent = file.name;
+            selectedMusicFile.style.display = 'block';
+        }
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            selectedFiles = Array.from(files).filter(file => 
+                file.type.startsWith('video/')
+            );
+
+            if (selectedFiles.length === 0) {
+                showError('Please select valid video files');
+                return;
+            }
+
+            displayFiles();
+            createBtn.disabled = false;
+        }
+
+        function displayFiles() {
+            fileList.innerHTML = '';
+            fileCount.textContent = selectedFiles.length;
+            selectedFilesDiv.style.display = 'block';
+
+            selectedFiles.forEach(file => {
+                const li = document.createElement('li');
+                li.className = 'file-item';
+                li.innerHTML = `
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-size">${formatFileSize(file.size)}</span>
+                `;
+                fileList.appendChild(li);
+            });
+        }
+
+        function formatFileSize(bytes) {
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            if (bytes === 0) return '0 Bytes';
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        createBtn.addEventListener('click', async () => {
+            if (selectedFiles.length === 0) return;
+
+            createBtn.disabled = true;
+            progressSection.style.display = 'block';
+            downloadSection.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            let finalMusicPath = null;
+
+            try {
+                // Handle music based on source
+                const musicSource = document.querySelector('input[name="musicSource"]:checked').value;
+                
+                if (musicSource === 'local' && musicFileInput.files.length > 0) {
+                    progressFill.style.width = '10%';
+                    progressFill.textContent = '10%';
+                    progressText.textContent = 'Uploading music...';
+
+                    const musicFormData = new FormData();
+                    musicFormData.append('music', musicFileInput.files[0]);
+
+                    const musicResponse = await fetch('/upload_music', {
+                        method: 'POST',
+                        body: musicFormData
+                    });
+
+                    if (!musicResponse.ok) {
+                        throw new Error('Music upload failed');
+                    }
+
+                    const musicData = await musicResponse.json();
+                    finalMusicPath = musicData.music_path;
+                }
+
+                progressFill.style.width = '20%';
+                progressFill.textContent = '20%';
+                progressText.textContent = 'Uploading videos...';
+
+                const formData = new FormData();
+                selectedFiles.forEach(file => {
+                    formData.append('videos', file);
+                });
+
+                const uploadResponse = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!uploadResponse.ok) {
+                    throw new Error('Upload failed');
+                }
+
+                const uploadData = await uploadResponse.json();
+                sessionId = uploadData.session_id;
+
+                progressFill.style.width = '50%';
+                progressFill.textContent = '50%';
+                progressText.textContent = 'Creating reel with music and text...';
+
+                const textOverlay = document.getElementById('textOverlay').value;
+                const textPosition = document.getElementById('textPosition').value;
+                const textColor = document.getElementById('textColor').value;
+                const strokeColor = document.getElementById('strokeColor').value;
+                const fontSize = parseInt(document.getElementById('fontSize').value);
+
+                const createResponse = await fetch('/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        text: textOverlay,
+                        text_options: {
+                            position: textPosition,
+                            color: textColor,
+                            stroke_color: strokeColor,
+                            font_size: fontSize
+                        },
+                        music_source: musicSource,
+                        music_path: finalMusicPath
+                    })
+                });
+
+                if (!createResponse.ok) {
+                    const errorData = await createResponse.json();
+                    throw new Error(errorData.error || 'Failed to create reel');
+                }
+
+                const createData = await createResponse.json();
+
+                progressFill.style.width = '100%';
+                progressFill.textContent = '100%';
+                progressText.textContent = 'Reel created successfully!';
+
+                setTimeout(() => {
+                    progressSection.style.display = 'none';
+                    downloadSection.style.display = 'block';
+                    downloadBtn.href = createData.download_url;
+                }, 1000);
+
+            } catch (error) {
+                showError(error.message);
+                progressSection.style.display = 'none';
+                createBtn.disabled = false;
+            }
+        });
+
+        function showError(message) {
+            errorMessage.textContent = '❌ Error: ' + message;
+            errorMessage.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
